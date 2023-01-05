@@ -13,3 +13,35 @@ const db = mysql.createConnection(
   console.log(`Connected to the business_db database.`)
 );
 
+const menuOptions = [
+  {
+    name: 'menuOptions',
+    message: 'What would you like to do?',
+    type: 'list',
+    choices: ['View All Employees', 'Add Employee', 'Update Employee Role', 'View All Roles', 'Add Role', 'View All Departments', 'Add Department', 'Quit'],
+  }
+];
+
+function init() {
+  inquirer
+    .prompt(menuOptions)
+    
+};
+
+function viewAllEmployees() {};
+
+function addEmployee() {};
+
+function updateEmployeeRole() {};
+
+function viewAllRoles() {};
+
+function addRole() {};
+
+function viewAllDepartments() {};
+
+function addDepartment() {};
+
+function quit() {};
+
+init();
