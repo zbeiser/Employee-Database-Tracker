@@ -146,7 +146,15 @@ function viewAllDepartments() {
     .then(() => menu());
 };
 
-function addDepartment() {};
+function addDepartment() {
+  inquirer
+    .prompt(addDepartmentQuestion)
+    .then(response => {
+      db.promise().query("INSERT INTO department (name) VALUES (?)", response.department)
+      .then(console.info("Added " + response.department + " to the database"));
+    })
+    .then(() => menu());
+};
 
 function quit() {
   process.exit();
