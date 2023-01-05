@@ -15,7 +15,7 @@ const db = mysql.createConnection(
 
 const menuOptions = [
   {
-    name: 'menuOptions',
+    name: 'menu',
     message: 'What would you like to do?',
     type: 'list',
     choices: ['View All Employees', 'Add Employee', 'Update Employee Role', 'View All Roles', 'Add Role', 'View All Departments', 'Add Department', 'Quit'],
@@ -25,7 +25,25 @@ const menuOptions = [
 function init() {
   inquirer
     .prompt(menuOptions)
-    
+    .then(response => {
+      if (response.menu === 'View All Employees') {
+        viewAllEmployees();
+      } else if (response.menu === 'Add Employee') {
+        addEmployee();
+      } else if (response.menu === 'Update Employee Role') {
+        updateEmployeeRole();
+      } else if (response.menu === 'View All Roles') {
+        viewAllRoles();
+      } else if (response.menu === 'Add Role') {
+        addRole();
+      } else if (response.menu === 'View All Departments') {
+        viewAllDepartments();
+      } else if (response.menu === 'Add Department') {
+        addDepartment();
+      } else if (response.menu === 'Quit') {
+        quit();
+      }
+    })
 };
 
 function viewAllEmployees() {};
@@ -42,6 +60,8 @@ function viewAllDepartments() {};
 
 function addDepartment() {};
 
-function quit() {};
+function quit() {
+  process.exit();
+};
 
 init();
