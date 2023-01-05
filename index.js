@@ -13,6 +13,8 @@ const db = mysql.createConnection(
   console.log(`Connected to the business_db database.`)
 );
 
+let depArray = [];
+
 const menuOptions = [
   {
     name: "menu",
@@ -77,7 +79,7 @@ const addRoleQuestions = [
     name: "department",
     message: "What department does the role belong to?",
     type: "list",
-    choices: getDepartmentNames()
+    choices: depArray
   }
 ];
 
@@ -166,11 +168,9 @@ function getDepartmentNames() {
   const departments = "SELECT name FROM department"
   db.promise().query(departments)
     .then(([rows,fields]) => {
-      let depArray = [];
       for (let i = 0; i < rows.length; i++) {
         depArray.push(rows[i].name);
       }
-      return depArray;
     })
 }
 
@@ -178,4 +178,5 @@ function quit() {
   process.exit();
 };
 
+getDepartmentNames();
 menu();
