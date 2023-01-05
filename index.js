@@ -77,7 +77,7 @@ const addRoleQuestions = [
     name: "department",
     message: "What department does the role belong to?",
     type: "list",
-    choices: []
+    choices: getDepartmentNames()
   }
 ];
 
@@ -135,7 +135,13 @@ function viewAllRoles() {
     .then(() => menu());
 };
 
-function addRole() {};
+function addRole() {
+  inquirer
+    .prompt(addRoleQuestions)
+    .then(response => {
+
+    })
+};
 
 function viewAllDepartments() {
   const departments = "SELECT * FROM department";
@@ -155,6 +161,18 @@ function addDepartment() {
     })
     .then(() => menu());
 };
+
+function getDepartmentNames() {
+  const departments = "SELECT name FROM department"
+  db.promise().query(departments)
+    .then(([rows,fields]) => {
+      let depArray = [];
+      for (let i = 0; i < rows.length; i++) {
+        depArray.push(rows[i].name);
+      }
+      return depArray;
+    })
+}
 
 function quit() {
   process.exit();
