@@ -59,7 +59,14 @@ function addEmployee() {};
 
 function updateEmployeeRole() {};
 
-function viewAllRoles() {};
+function viewAllRoles() {
+  const roles = "SELECT role.id, role.title, department.name AS department, role.salary FROM role JOIN department ON department.id = role.department_id;"
+  db.promise().query(roles)
+    .then(([rows,fields]) => {
+      console.table(rows);
+    })
+    .then(() => menu());
+};
 
 function addRole() {};
 
