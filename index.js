@@ -22,7 +22,7 @@ const menuOptions = [
   }
 ];
 
-function init() {
+function menu() {
   inquirer
     .prompt(menuOptions)
     .then(response => {
@@ -56,7 +56,14 @@ function viewAllRoles() {};
 
 function addRole() {};
 
-function viewAllDepartments() {};
+function viewAllDepartments() {
+  const departments = "SELECT * FROM department";
+  db.promise().query(departments)
+    .then(([rows,fields]) => {
+      console.table(rows);
+    })
+    .then(() => menu());
+};
 
 function addDepartment() {};
 
@@ -64,4 +71,4 @@ function quit() {
   process.exit();
 };
 
-init();
+menu();
