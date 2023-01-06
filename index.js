@@ -141,8 +141,11 @@ function addRole() {
   inquirer
     .prompt(addRoleQuestions)
     .then(response => {
-
+      const role = "INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)"
+      db.promise().query(role, [response.role, response.salary, response.department])
+      .then(console.info("Added " + response.role + " to the database"));
     })
+    .then(() => menu());
 };
 
 function viewAllDepartments() {
@@ -158,18 +161,20 @@ function addDepartment() {
   inquirer
     .prompt(addDepartmentQuestion)
     .then(response => {
-      db.promise().query("INSERT INTO department (name) VALUES (?)", response.department)
+      const department = "INSERT INTO department (name) VALUES (?)"
+      db.promise().query(department, response.department)
       .then(console.info("Added " + response.department + " to the database"));
     })
+    .then(() => getDepartmentNames())
     .then(() => menu());
 };
 
 function getDepartmentNames() {
-  const departments = "SELECT name FROM department"
+  const departments = "SELECT * FROM department"
   db.promise().query(departments)
     .then(([rows,fields]) => {
       for (let i = 0; i < rows.length; i++) {
-        depArray.push(rows[i].name);
+        depArray.push({name: rows[i].name, value: rows[i].id});
       }
     })
 }
