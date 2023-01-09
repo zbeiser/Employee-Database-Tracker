@@ -24,7 +24,16 @@ const menuOptions = [
     name: "menu",
     message: "What would you like to do?",
     type: "list",
-    choices: ["View All Employees", "Add Employee", "Update Employee Role", "Update Employee Manager", "View All Roles", "Add Role", "View All Departments", "Add Department", "Quit"],
+    choices: ["View All Employees", "View Employees By Manager", "Add Employee", "Update Employee Role", "Update Employee Manager", "View All Roles", "Add Role", "View All Departments", "Add Department", "Quit"],
+  }
+];
+
+const viewEmployeesByManagerQs = [
+  {
+    name: "manager",
+    message: "Which manager's employees would you like to view?",
+    type: "list",
+    choices: empUpdArray
   }
 ];
 
@@ -117,6 +126,8 @@ function menu() {
     .then(response => {
       if (response.menu === "View All Employees") {
         viewAllEmployees();
+      } else if (response.menu === "View Employees By Manager") {
+        viewEmployeesByManager();
       } else if (response.menu === "Add Employee") {
         addEmployee();
       } else if (response.menu === "Update Employee Role") {
@@ -145,6 +156,20 @@ function viewAllEmployees() {
       console.table(rows);
     })
     .then(() => menu());
+};
+
+// Executes inquirer prompt, runs mysql query for employee table filtered by chosen manager, logs results to a table
+function viewEmployeesByManager() {
+  inquirer
+    .prompt(viewEmployeesByManagerQs)
+    .then(response => {
+      const employeeManager = "SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id LEFT JOIN employee manager on manager.id = employee.manager_id WHERE employee.manager_id = ?"
+      db.promise().query(employeeManager, [response.manager])
+      .then(([rows,fields]) => {
+        console.table(rows);
+      })
+      .then(() => menu());
+    })
 };
 
 // Executes inquirer prompt, runs mysql query to add a new employee to the employee table with responses
