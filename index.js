@@ -24,7 +24,7 @@ const menuOptions = [
     name: "menu",
     message: "What would you like to do?",
     type: "list",
-    choices: ["View All Employees", "View Employees By Manager", "Add Employee", "Update Employee Role", "Update Employee Manager", "View All Roles", "Add Role", "View All Departments", "Add Department", "Quit"],
+    choices: ["View All Employees", "View Employees By Manager", "View Employees By Department", "Add Employee", "Update Employee Role", "Update Employee Manager", "View All Roles", "Add Role", "View All Departments", "Add Department", "Quit"],
   }
 ];
 
@@ -34,6 +34,15 @@ const viewEmployeesByManagerQs = [
     message: "Which manager's employees would you like to view?",
     type: "list",
     choices: empUpdArray
+  }
+];
+
+const viewEmployeesByDepartmentQs = [
+  {
+    name: "department",
+    message: "Which department's employees would you like to view?",
+    type: "list",
+    choices: depArray
   }
 ];
 
@@ -128,6 +137,8 @@ function menu() {
         viewAllEmployees();
       } else if (response.menu === "View Employees By Manager") {
         viewEmployeesByManager();
+      } else if (response.menu === "View Employees By Department") {
+        viewEmployeesByDepartment();
       } else if (response.menu === "Add Employee") {
         addEmployee();
       } else if (response.menu === "Update Employee Role") {
@@ -165,6 +176,19 @@ function viewEmployeesByManager() {
     .then(response => {
       const employeeManager = "SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id LEFT JOIN employee manager on manager.id = employee.manager_id WHERE employee.manager_id = ?"
       db.promise().query(employeeManager, [response.manager])
+      .then(([rows,fields]) => {
+        console.table(rows);
+      })
+      .then(() => menu());
+    })
+};
+
+function viewEmployeesByDepartment() {
+  inquirer
+    .prompt(viewEmployeesByDepartmentQs)
+    .then(response => {
+      const employeeDepartment = "SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id LEFT JOIN employee manager on manager.id = employee.manager_id WHERE role.department_id = ?"
+      db.promise().query(employeeDepartment, [response.department])
       .then(([rows,fields]) => {
         console.table(rows);
       })
