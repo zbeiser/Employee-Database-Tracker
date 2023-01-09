@@ -24,11 +24,11 @@ const menuOptions = [
     name: "menu",
     message: "What would you like to do?",
     type: "list",
-    choices: ["View All Employees", "Add Employee", "Update Employee Role", "View All Roles", "Add Role", "View All Departments", "Add Department", "Quit"],
+    choices: ["View All Employees", "Add Employee", "Update Employee Role", "Update Employee Manager", "View All Roles", "Add Role", "View All Departments", "Add Department", "Quit"],
   }
 ];
 
-const addEmployeeQuestions = [
+const addEmployeeQs = [
   {
     name: "firstName",
     message: "What is the employee's first name?",
@@ -53,7 +53,7 @@ const addEmployeeQuestions = [
   },
 ];
 
-const updateEmployeeRoleQuestions = [
+const updateEmployeeRoleQs = [
   {
     name: "employee",
     message: "Which employee's role do you want to update?",
@@ -68,7 +68,22 @@ const updateEmployeeRoleQuestions = [
   }
 ];
 
-const addRoleQuestions = [
+const updateEmployeeManagerQs = [
+  {
+    name: "employee",
+    message: "Which employee's manager do you want to update?",
+    type: "list",
+    choices: empUpdArray
+  },
+  {
+    name: "manager",
+    message: "Which manager do you want to assign the selected employee?",
+    type: "list",
+    choices: empArray
+  }
+];
+
+const addRoleQs = [
   {
     name: "role",
     message: "What is the name of the role?",
@@ -87,7 +102,7 @@ const addRoleQuestions = [
   }
 ];
 
-const addDepartmentQuestion = [
+const addDepartmentQs = [
   {
     name: "department",
     message: "What is the name of the department?",
@@ -106,6 +121,8 @@ function menu() {
         addEmployee();
       } else if (response.menu === "Update Employee Role") {
         updateEmployeeRole();
+      } else if (response.menu === "Update Employee Manager") {
+        updateEmployeeManager();
       } else if (response.menu === "View All Roles") {
         viewAllRoles();
       } else if (response.menu === "Add Role") {
@@ -133,7 +150,7 @@ function viewAllEmployees() {
 // Executes inquirer prompt, runs mysql query to add a new employee to the employee table with responses
 function addEmployee() {
   inquirer
-    .prompt(addEmployeeQuestions)
+    .prompt(addEmployeeQs)
     .then(response => {
       const employee = "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)"
       db.promise().query(employee, [response.firstName, response.lastName, response.role, response.manager])
@@ -146,11 +163,23 @@ function addEmployee() {
 // Executes inquirer prompt, runs mysql query to update employee's role with responses
 function updateEmployeeRole() {
   inquirer
-    .prompt(updateEmployeeRoleQuestions)
+    .prompt(updateEmployeeRoleQs)
     .then(response => {
       const employeeRole = "UPDATE employee SET role_id = ? WHERE id = ?"
       db.promise().query(employeeRole, [response.role, response.employee])
       .then(console.info("Updated employee's role"));
+    })
+    .then(() => menu());
+};
+
+// Executes inquirer prompt, runs mysql query to update employee's manager with responses
+function updateEmployeeManager() {
+  inquirer
+    .prompt(updateEmployeeManagerQs)
+    .then(response => {
+      const employeeManager = "UPDATE employee SET manager_id = ? WHERE id = ?"
+      db.promise().query(employeeManager, [response.manager, response.employee])
+      .then(console.info("Updated employee's manager"));
     })
     .then(() => menu());
 };
@@ -168,7 +197,7 @@ function viewAllRoles() {
 // Executes inquirer prompt, runs mysql query to add a new role to the role table with responses
 function addRole() {
   inquirer
-    .prompt(addRoleQuestions)
+    .prompt(addRoleQs)
     .then(response => {
       const role = "INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)"
       db.promise().query(role, [response.role, response.salary, response.department])
@@ -191,7 +220,7 @@ function viewAllDepartments() {
 // Executes inquirer prompt, then mysql query to add a new department to the department table with responses
 function addDepartment() {
   inquirer
-    .prompt(addDepartmentQuestion)
+    .prompt(addDepartmentQs)
     .then(response => {
       const department = "INSERT INTO department (name) VALUES (?)"
       db.promise().query(department, response.department)
