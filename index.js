@@ -191,6 +191,7 @@ function addDepartment() {
 };
 
 function getDepartmentNames() {
+  depArray.length = 0;
   const departments = "SELECT * FROM department"
   db.promise().query(departments)
     .then(([rows,fields]) => {
@@ -201,6 +202,7 @@ function getDepartmentNames() {
 }
 
 function getRoleNames() {
+  roleArray.length = 0;
   const roles = "SELECT * FROM role"
   db.promise().query(roles)
     .then(([rows,fields]) => {
@@ -211,6 +213,7 @@ function getRoleNames() {
 }
 
 function getEmployeeNames() {
+  empArray.length = 0;
   const employees = "SELECT * FROM employee"
   db.promise().query(employees)
     .then(([rows,fields]) => {
