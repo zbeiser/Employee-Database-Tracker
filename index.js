@@ -10,7 +10,6 @@ const db = mysql.createConnection(
     password: "password",
     database: "business_db"
   },
-  console.log(`Connected to the business_db database.`)
 );
 
 let depArray = [];
@@ -118,7 +117,7 @@ function menu() {
 };
 
 function viewAllEmployees() {
-  const employees = "SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id LEFT JOIN employee manager on manager.id = employee.manager_id;"
+  const employees = "SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id LEFT JOIN employee manager on manager.id = employee.manager_id"
   db.promise().query(employees)
     .then(([rows,fields]) => {
       console.table(rows);
@@ -138,10 +137,19 @@ function addEmployee() {
     .then(() => menu());
 };
 
-function updateEmployeeRole() {};
+function updateEmployeeRole() {
+  inquirer
+    .prompt(updateEmployeeRoleQuestions)
+    .then(response => {
+      const employeeRole = "UPDATE employee SET role_id = ? WHERE id = ?"
+      db.promise().query(employeeRole, [response.role, response.employee])
+      .then(console.info("Updated employee's role"));
+    })
+    .then(() => menu());
+};
 
 function viewAllRoles() {
-  const roles = "SELECT role.id, role.title, department.name AS department, role.salary FROM role JOIN department ON department.id = role.department_id;"
+  const roles = "SELECT role.id, role.title, department.name AS department, role.salary FROM role JOIN department ON department.id = role.department_id"
   db.promise().query(roles)
     .then(([rows,fields]) => {
       console.table(rows);
@@ -213,6 +221,7 @@ function getEmployeeNames() {
 }
 
 function quit() {
+  console.info("Goodbye!");
   process.exit();
 };
 
