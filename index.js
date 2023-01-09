@@ -14,6 +14,8 @@ const db = mysql.createConnection(
 );
 
 let depArray = [];
+let roleArray = [];
+let empArray = [];
 
 const menuOptions = [
   {
@@ -39,13 +41,13 @@ const addEmployeeQuestions = [
     name: "role",
     message: "What is the employee's role?",
     type: "list",
-    choices: []
+    choices: roleArray
   },
   {
     name: "manager",
     message: "Who is the employee's manager?",
     type: "list",
-    choices: []
+    choices: empArray
   },
 ];
 
@@ -54,13 +56,13 @@ const updateEmployeeRoleQuestions = [
     name: "employee",
     message: "Which employee's role do you want to update?",
     type: "list",
-    choices: []
+    choices: empArray
   },
   {
     name: "role",
     message: "Which role do you want to assign the selected employee?",
     type: "list",
-    choices: []
+    choices: roleArray
   }
 ];
 
@@ -124,7 +126,17 @@ function viewAllEmployees() {
     .then(() => menu());
 };
 
-function addEmployee() {};
+function addEmployee() {
+  inquirer
+    .prompt(addEmployeeQuestions)
+    .then(response => {
+      const employee = "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)"
+      db.promise().query(employee, [response.firstName, response.lastName, response.role, response.manager])
+      .then(console.info("Added " + response.firstName + " " + response.lastName + " to the database"));
+    })
+    .then(() => getEmployeeNames())
+    .then(() => menu());
+};
 
 function updateEmployeeRole() {};
 
@@ -145,6 +157,7 @@ function addRole() {
       db.promise().query(role, [response.role, response.salary, response.department])
       .then(console.info("Added " + response.role + " to the database"));
     })
+    .then(() => getRoleNames())
     .then(() => menu());
 };
 
@@ -179,9 +192,31 @@ function getDepartmentNames() {
     })
 }
 
+function getRoleNames() {
+  const roles = "SELECT * FROM role"
+  db.promise().query(roles)
+    .then(([rows,fields]) => {
+      for (let i = 0; i < rows.length; i++) {
+        roleArray.push({name: rows[i].title, value: rows[i].id});
+      }
+    })
+}
+
+function getEmployeeNames() {
+  const employees = "SELECT * FROM employee"
+  db.promise().query(employees)
+    .then(([rows,fields]) => {
+      for (let i = 0; i < rows.length; i++) {
+        empArray.push({name: rows[i].first_name + " " + rows[i].last_name, value: rows[i].id});
+      }
+    })
+}
+
 function quit() {
   process.exit();
 };
 
+getEmployeeNames();
+getRoleNames();
 getDepartmentNames();
 menu();
