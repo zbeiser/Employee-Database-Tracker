@@ -15,6 +15,7 @@ const db = mysql.createConnection(
 let depArray = [];
 let roleArray = [];
 let empArray = [];
+let empUpdArray = [];
 
 const menuOptions = [
   {
@@ -55,7 +56,7 @@ const updateEmployeeRoleQuestions = [
     name: "employee",
     message: "Which employee's role do you want to update?",
     type: "list",
-    choices: empArray
+    choices: empUpdArray
   },
   {
     name: "role",
@@ -214,12 +215,15 @@ function getRoleNames() {
 
 function getEmployeeNames() {
   empArray.length = 0;
+  empUpdArray.length = 0;
   const employees = "SELECT * FROM employee"
   db.promise().query(employees)
     .then(([rows,fields]) => {
       for (let i = 0; i < rows.length; i++) {
         empArray.push({name: rows[i].first_name + " " + rows[i].last_name, value: rows[i].id});
+        empUpdArray.push({name: rows[i].first_name + " " + rows[i].last_name, value: rows[i].id});
       }
+      empArray.push({name: "None", value: null})
     })
 }
 
