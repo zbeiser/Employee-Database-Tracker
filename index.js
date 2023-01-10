@@ -24,7 +24,7 @@ const menuOptions = [
     name: "menu",
     message: "What would you like to do?",
     type: "list",
-    choices: ["View All Employees", "View Employees By Manager", "View Employees By Department", "Add Employee", "Update Employee Role", "Update Employee Manager", "Delete Employee", "View All Roles", "Add Role", "Delete Role", "View All Departments", "Add Department", "Delete Department", "Quit"],
+    choices: ["View All Employees", "View Employees By Manager", "View Employees By Department", "Add Employee", "Update Employee Role", "Update Employee Manager", "Delete Employee", "View All Roles", "Add Role", "Delete Role", "View All Departments", "View Total Utilized Budget of Department", "Add Department", "Delete Department", "Quit"],
   }
 ];
 
@@ -137,6 +137,15 @@ const deleteDepartmentQs = [
   }
 ];
 
+const viewDepartmentBudgetQs = [
+  {
+    name: "department",
+    message: "Which department's total utilized budget do you want to view?",
+    type: "list",
+    choices: depArray
+  }
+];
+
 const deleteRoleQs = [
   {
     name: "role",
@@ -182,6 +191,8 @@ function menu() {
         deleteRole();
       } else if (response.menu === "View All Departments") {
         viewAllDepartments();
+      } else if (response.menu === "View Total Utilized Budget of Department") {
+        viewDepartmentBudget();
       } else if (response.menu === "Add Department") {
         addDepartment();
       } else if (response.menu === "Delete Department") {
@@ -321,6 +332,19 @@ function viewAllDepartments() {
       console.table(rows);
     })
     .then(() => menu());
+};
+
+function viewDepartmentBudget() {
+  inquirer
+  .prompt(viewDepartmentBudgetQs)
+  .then(response => {
+    const department = "SELECT SUM(salary) AS 'Total Utilized Budget' FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id WHERE role.department_id = ?"
+    db.promise().query(department, response.department)
+    .then(([rows,fields]) => {
+      console.table(rows);
+    })
+    .then(() => menu());
+  })
 };
 
 // Executes inquirer prompt, then mysql query to add a new department to the department table with responses
