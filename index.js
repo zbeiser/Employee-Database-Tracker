@@ -15,8 +15,8 @@ const db = mysql.createConnection(
 // Declaring arrays that will globally store department, role, and employee names for inquirer prompts
 let depArray = [];
 let roleArray = [];
+let empNoneArray = [];
 let empArray = [];
-let empUpdArray = [];
 
 // Declaring inquirer prompt questions as variables for better readability of the functions
 const menuOptions = [
@@ -24,7 +24,7 @@ const menuOptions = [
     name: "menu",
     message: "What would you like to do?",
     type: "list",
-    choices: ["View All Employees", "View Employees By Manager", "View Employees By Department", "Add Employee", "Update Employee Role", "Update Employee Manager", "View All Roles", "Add Role", "View All Departments", "Add Department", "Quit"],
+    choices: ["View All Employees", "View Employees By Manager", "View Employees By Department", "Add Employee", "Update Employee Role", "Update Employee Manager", "Delete Employee", "View All Roles", "Add Role", "Delete Role", "View All Departments", "Add Department", "Delete Department", "Quit"],
   }
 ];
 
@@ -33,7 +33,7 @@ const viewEmployeesByManagerQs = [
     name: "manager",
     message: "Which manager's employees would you like to view?",
     type: "list",
-    choices: empUpdArray
+    choices: empArray
   }
 ];
 
@@ -67,7 +67,7 @@ const addEmployeeQs = [
     name: "manager",
     message: "Who is the employee's manager?",
     type: "list",
-    choices: empArray
+    choices: empNoneArray
   },
 ];
 
@@ -76,7 +76,7 @@ const updateEmployeeRoleQs = [
     name: "employee",
     message: "Which employee's role do you want to update?",
     type: "list",
-    choices: empUpdArray
+    choices: empArray
   },
   {
     name: "role",
@@ -91,13 +91,13 @@ const updateEmployeeManagerQs = [
     name: "employee",
     message: "Which employee's manager do you want to update?",
     type: "list",
-    choices: empUpdArray
+    choices: empArray
   },
   {
     name: "manager",
     message: "Which manager do you want to assign the selected employee?",
     type: "list",
-    choices: empArray
+    choices: empNoneArray
   }
 ];
 
@@ -128,6 +128,33 @@ const addDepartmentQs = [
   }
 ];
 
+const deleteDepartmentQs = [
+  {
+    name: "department",
+    message: "Which department do you want to delete?",
+    type: "list",
+    choices: depArray
+  }
+];
+
+const deleteRoleQs = [
+  {
+    name: "role",
+    message: "Which role do you want to delete?",
+    type: "list",
+    choices: roleArray
+  }
+];
+
+const deleteEmployeeQs = [
+  {
+    name: "employee",
+    message: "Which employee do you want to delete?",
+    type: "list",
+    choices: empArray
+  }
+];
+
 // Main Menu function
 function menu() {
   inquirer
@@ -145,14 +172,20 @@ function menu() {
         updateEmployeeRole();
       } else if (response.menu === "Update Employee Manager") {
         updateEmployeeManager();
+      } else if (response.menu === "Delete Employee") {
+        deleteEmployee();
       } else if (response.menu === "View All Roles") {
         viewAllRoles();
       } else if (response.menu === "Add Role") {
         addRole();
+      } else if (response.menu === "Delete Role") {
+        deleteRole();
       } else if (response.menu === "View All Departments") {
         viewAllDepartments();
       } else if (response.menu === "Add Department") {
         addDepartment();
+      } else if (response.menu === "Delete Department") {
+        deleteDepartment();
       } else if (response.menu === "Quit") {
         quit();
       }
@@ -205,7 +238,7 @@ function addEmployee() {
       db.promise().query(employee, [response.firstName, response.lastName, response.role, response.manager])
       .then(console.info("Added " + response.firstName + " " + response.lastName + " to the database"));
     })
-    .then(() => getEmployeeNames()) // Updates empArray with the new employee
+    .then(() => getEmployeeNames()) // Updates empNoneArray with the new employee
     .then(() => menu());
 };
 
@@ -233,6 +266,18 @@ function updateEmployeeManager() {
     .then(() => menu());
 };
 
+function deleteEmployee() {
+  inquirer
+    .prompt(deleteEmployeeQs)
+    .then(response => {
+      const employee = "DELETE FROM employee WHERE id = ?"
+      db.promise().query(employee, [response.employee])
+      .then(console.info("Deleted employee from the database"));
+    })
+    .then(() => getEmployeeNames())
+    .then(() => menu());
+};
+
 // Executes mysql query for role table, logs results to a table
 function viewAllRoles() {
   const roles = "SELECT role.id, role.title, department.name AS department, role.salary FROM role JOIN department ON department.id = role.department_id"
@@ -253,6 +298,18 @@ function addRole() {
       .then(console.info("Added " + response.role + " to the database"));
     })
     .then(() => getRoleNames()) // Updates roleArray with the new role
+    .then(() => menu());
+};
+
+function deleteRole() {
+  inquirer
+    .prompt(deleteRoleQs)
+    .then(response => {
+      const role = "DELETE FROM role WHERE id = ?"
+      db.promise().query(role, [response.role])
+      .then(console.info("Deleted role from the database"));
+    })
+    .then(() => getRoleNames())
     .then(() => menu());
 };
 
@@ -279,6 +336,18 @@ function addDepartment() {
     .then(() => menu());
 };
 
+function deleteDepartment() {
+  inquirer
+    .prompt(deleteDepartmentQs)
+    .then(response => {
+      const department = "DELETE FROM department WHERE id = ?"
+      db.promise().query(department, [response.department])
+      .then(console.info("Deleted department from the database"));
+    })
+    .then(() => getDepartmentNames())
+    .then(() => menu());
+};
+
 // The next three functions use mysql queries to fill global arrays with department, role, and employee names for inquirer prompt choices.
 function getDepartmentNames() {
   depArray.length = 0; // Arrays are emptied first to prevent duplicates
@@ -289,7 +358,7 @@ function getDepartmentNames() {
         depArray.push({name: rows[i].name, value: rows[i].id});
       }
     })
-}
+};
 
 function getRoleNames() {
   roleArray.length = 0;
@@ -300,22 +369,22 @@ function getRoleNames() {
         roleArray.push({name: rows[i].title, value: rows[i].id});
       }
     })
-}
+};
 
 // addEmployee() and updateEmployeeRole() need employee names, but addEmployee() also needs a "None" option for picking a manager, so they get separate arrays.
 function getEmployeeNames() {
+  empNoneArray.length = 0;
   empArray.length = 0;
-  empUpdArray.length = 0;
   const employees = "SELECT * FROM employee"
   db.promise().query(employees)
     .then(([rows,fields]) => {
       for (let i = 0; i < rows.length; i++) {
+        empNoneArray.push({name: rows[i].first_name + " " + rows[i].last_name, value: rows[i].id});
         empArray.push({name: rows[i].first_name + " " + rows[i].last_name, value: rows[i].id});
-        empUpdArray.push({name: rows[i].first_name + " " + rows[i].last_name, value: rows[i].id});
       }
-      empArray.push({name: "None", value: null})
+      empNoneArray.push({name: "None", value: null})
     })
-}
+};
 
 // Exits the application
 function quit() {
