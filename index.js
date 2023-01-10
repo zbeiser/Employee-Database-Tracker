@@ -416,8 +416,29 @@ function quit() {
   process.exit();
 };
 
+function welcomeText() {
+  console.info(`
+  ╔═══╗─────╔╗
+  ║╔══╝─────║║
+  ║╚══╦╗╔╦══╣║╔══╦╗─╔╦══╦══╗
+  ║╔══╣╚╝║╔╗║║║╔╗║║─║║║═╣║═╣
+  ║╚══╣║║║╚╝║╚╣╚╝║╚═╝║║═╣║═╣
+  ╚═══╩╩╩╣╔═╩═╩══╩═╗╔╩══╩══╝
+  ───────║║──────╔═╝║
+  ───────╚╝──────╚══╝
+  ╔═╗╔═╗
+  ║║╚╝║║
+  ║╔╗╔╗╠══╦═╗╔══╦══╦══╦═╗
+  ║║║║║║╔╗║╔╗╣╔╗║╔╗║║═╣╔╝
+  ║║║║║║╔╗║║║║╔╗║╚╝║║═╣║
+  ╚╝╚╝╚╩╝╚╩╝╚╩╝╚╩═╗╠══╩╝
+  ──────────────╔═╝║
+  ──────────────╚══╝`)
+};
+
 // Fills the arrays for inquirer choices, then runs the main menu
 getEmployeeNames();
 getRoleNames();
 getDepartmentNames();
+welcomeText();
 menu();
